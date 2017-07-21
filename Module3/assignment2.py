@@ -19,7 +19,7 @@ df = pd.read_csv('Datasets/wheat.data')
 # 
 
 # Plot 1
-df.plot.scatter(x='area', y='perimeter', )
+df.plot.scatter(x='area', y='perimeter', marker='.')
 plt.suptitle('Area vs perimeter')
 plt.xlabel('Area')
 plt.ylabel('Perimeter')
@@ -29,7 +29,7 @@ plt.ylabel('Perimeter')
 # groove and asymmetry features
 # 
 # Plot 2
-df.plot.scatter(x='groove', y='asymmetry')
+df.plot.scatter(x='groove', y='asymmetry', marker='^')
 plt.suptitle('groove vs asymmetry')
 plt.xlabel('groove')
 plt.ylabel('asymmetry')
@@ -40,7 +40,7 @@ plt.ylabel('asymmetry')
 # compactness and width features
 # 
 # Plot 3
-df.plot.scatter(x='compactness', y='width', )
+df.plot.scatter(x='compactness', y='width', marker='o') 
 plt.suptitle('compactness vs width')
 plt.xlabel('compactness')
 plt.ylabel('width')
