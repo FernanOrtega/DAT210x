@@ -6,9 +6,11 @@ import numpy as np
 # TODO:
 # Load up the dataset, setting correct header labels.
 #
-# .. your code here ..
 
+df = pd.read_csv('Datasets/census.data', names = ['education', 'age', 'capital-gain', 'race', 'capital-loss', 'hours-per-week', 'sex', 'classification'])
 
+print df.head()
+print df.dtypes
 
 #
 # TODO:
@@ -23,9 +25,23 @@ import numpy as np
 # should be represented as nans, you can convert them using
 # na_values when loading the dataframe.
 #
-# .. your code here ..
 
+print df['education'].unique()
+print df['age'].unique()
+print df['capital-gain'].unique()
+print df['race'].unique()
+print df['capital-loss'].unique()
+print df['hours-per-week'].unique()
+print df['sex'].unique()
+print df['classification'].unique()
 
+df = df.replace('?', np.nan)
+# df.replace(to_replace='?', value=np.nan, inplace=True)
+
+df['capital-gain'] = pd.to_numeric(df['capital-gain'], errors = 'coerce')
+# df['capital-gain'] = df['capital-gain'].astype('int')
+
+print df.dtypes
 
 #
 # TODO:
@@ -38,14 +54,25 @@ import numpy as np
 # what makes more sense generally---to represent such features with a
 # continuous numeric type... or a series of categories?
 #
-# .. your code here ..
 
+print df['age'].describe()
+print df['capital-gain'].describe()
+print df['capital-loss'].describe()
+print df['hours-per-week'].describe()
 
+#nominal
+df['education'] = df['education'].astype("category").cat.codes
+df['race'] = df['race'].astype("category").cat.codes
+df['sex'] = df['sex'].astype("category").cat.codes
+df['classification'] = df['classification'].astype("category").cat.codes
+
+#numerical to ordinal
+age = [0,20,30,50,70,120]
+labels = ['<=20', '<=30', '<=50', '<=70', '>70']
+df.age = pd.cut(df.age, bins=age, labels=labels, include_lowest = True)
 
 #
 # TODO:
 # Print out your dataframe
 #
-# .. your code here ..
-
-
+print df.shape[0]
