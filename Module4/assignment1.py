@@ -38,9 +38,14 @@ def do_PCA(armadillo):
   # not a Pandas dataframe, which is something Pandas does for
   # you automatically. =)
   #
-  # .. your code here ..
+  
+  from sklearn.decomposition import PCA
+  
+  pca = PCA(n_components = 2, svd_solver='full')
+  
+  train = pca.fit_transform(armadillo)
 
-  return None
+  return train
 
 
 def do_RandomizedPCA(armadillo):
@@ -65,9 +70,14 @@ def do_RandomizedPCA(armadillo):
   #
   # Deprecated Method: http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.RandomizedPCA.html
   #
-  # .. your code here ..
+    
+  from sklearn.decomposition import PCA
+  
+  pca = PCA(n_components = 2, svd_solver='randomized')
+  
+  train = pca.fit_transform(armadillo)
 
-  return None
+  return train
 
 
 
