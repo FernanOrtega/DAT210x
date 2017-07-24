@@ -51,8 +51,6 @@ df = df[['bgr', 'wc', 'rc']]
 
 print df.dtypes
 
-print df
-
 df = df.apply(pd.to_numeric, errors='ignore')
 
 print df.dtypes
