@@ -47,7 +47,15 @@ def doKMeans(data, clusters=0):
   # of your domain expertise. Also, *YOU* need to instantiate (and return) the variable named `model`
   # here, which will be a SKLearn K-Means model for this to work.
   #
-  # .. your code here ..
+  from sklearn.cluster import KMeans
+    
+  user1 = data[['TowerLat', 'TowerLon']]
+    
+  model = KMeans(n_clusters=clusters)
+      
+  model.fit(user1)
+    
+  model.predict(user1)
   return model
 
 
@@ -56,10 +64,10 @@ def doKMeans(data, clusters=0):
 # TODO: Load up the dataset and take a peek at its head and dtypes.
 # Convert the date using pd.to_datetime, and the time using pd.to_timedelta
 #
-# .. your code here ..
-
-
-
+df = pd.read_csv('Datasets/CDR.csv')
+df.CallDate = pd.to_datetime(df.CallDate, errors = 'coerce')
+df.CallTime = pd.to_timedelta(df.CallTime, errors = 'coerce')
+df.Duration = pd.to_timedelta(df.CallTime, errors = 'coerce')
 
 
 #
@@ -68,7 +76,7 @@ def doKMeans(data, clusters=0):
 # Manually check through unique_numbers to ensure the order the numbers appear is
 # the same order they appear (uniquely) in your dataset:
 #
-# .. your code here ..
+unique_numbers = list(df.In.unique())
 
 
 #
@@ -95,13 +103,13 @@ print "\n\nExamining person: ", 0
 # TODO: Create a slice called user1 that filters to only include dataset records where the
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
-# .. your code here ..
+user1 = df[df.In == unique_numbers[0]]
 
 
 #
 # TODO: Alter your slice so that it includes only Weekday (Mon-Fri) values.
 #
-# .. your code here ..
+user1 = user1[(user1.DOW != 'Sat') & (user1.DOW != 'Sun')]
 
 
 #
@@ -110,15 +118,15 @@ print "\n\nExamining person: ", 0
 # in the morning during their commute to work, then they'll spend the entire day at work.
 # So the assumption is that most of the time is spent either at work, or in 2nd, at home.
 #
-# .. your code here ..
+user1 = user1[user1.CallTime < '17:00:00']
 
 
 #
 # TODO: Plot the Cell Towers the user connected to
 #
-# .. your code here ..
-
-
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.scatter(user1.TowerLon,user1.TowerLat, c='gray', marker='o', alpha=0.2)
 
 #
 # INFO: Run K-Means with K=3 or K=4. There really should only be a two areas of concentration. If you
