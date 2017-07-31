@@ -63,7 +63,10 @@ def doKMeans(data, clusters=0):
   # Hint: Just like with doPCA above, you will have to create a variable called
   # `model`, which is a SKLearn K-Means model for this to work.
   #
-  # .. your code here ..
+  from sklearn.cluster import KMeans
+  model = KMeans(n_clusters=clusters)
+  model.fit(data)
+  model.predict(data)
   return model.cluster_centers_, model.labels_
 
 
@@ -73,7 +76,8 @@ def doKMeans(data, clusters=0):
 # for this dataset, since if the value is missing, you can assume no $ was spent
 # on it.
 #
-# .. your code here ..
+df = pd.read_csv('Datasets/Wholesale customers data.csv')
+df.fillna(0)
 
 #
 # TODO: As instructed, get rid of the 'Channel' and 'Region' columns, since
@@ -81,7 +85,7 @@ def doKMeans(data, clusters=0):
 # than a national / international one. Leaving these fields in here would cause
 # KMeans to examine and give weight to them.
 #
-# .. your code here ..
+df = df.drop(['Channel', 'Region'], axis=1)
 
 
 #
@@ -89,7 +93,7 @@ def doKMeans(data, clusters=0):
 # K-Means, it's a good idea to get a quick peek at it. You can do this using the
 # .describe() method, or even by using the built-in pandas df.plot.hist()
 #
-# .. your code here ..
+print df.describe()
 
 
 #
@@ -124,7 +128,6 @@ for col in df.columns:
 print "Dropping {0} Outliers...".format(len(drop))
 df.drop(inplace=True, labels=drop.keys(), axis=0)
 print df.describe()
-
 
 #
 # INFO: What are you interested in?
@@ -201,7 +204,7 @@ centroids, labels = doKMeans(T, n_clusters)
 # TODO: Print out your centroids. They're currently in feature-space, which
 # is good. Print them out before you transform them into PCA space for viewing
 #
-# .. your code here ..
+print centroids
 
 
 # Do PCA *after* to visualize the results. Project the centroids as well as 
