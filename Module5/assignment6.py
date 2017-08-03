@@ -2,6 +2,7 @@ import random, math
 import pandas as pd
 import numpy as np
 import scipy.io
+import matplotlib
 
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -16,7 +17,7 @@ matplotlib.style.use('ggplot') # Look Pretty
 # Startng from here, the following code is for your convenience only;
 # You can skip all the way down to the first 'TODO:' item.
 
-def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
+def Plot2DBoundary(model, DTrain, LTrain, DTest, LTest):
   # The dots are training samples (img not drawn), and the pics are testing samples (images drawn)
   # Play around with the K values. This is very controlled dataset so it should be able to get perfect classification on testing entries
   # Play with the K for isomap, play with the K for neighbors. 
@@ -89,10 +90,6 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
     indices = np.where(LTrain == label)
     ax.scatter(DTrain[indices, 0], DTrain[indices, 1], c=colors[label], alpha=0.8, marker='o')
 
-  # Plot
-  plt.show()  
-
-
 
 #
 # TODO: Use the same code from Module4/assignment4.py to load up the
@@ -101,8 +98,14 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # instead of sideways. This was demonstrated in the M4/A4 code:
 # https://github.com/authman/DAT210x/blob/master/Module4/assignment4.py#L31-L41
 #
-# .. your code here ..
+mat = scipy.io.loadmat('../Module4/Datasets/face_data.mat')
+df = pd.DataFrame(mat['images']).T
+num_images, num_pixels = df.shape
+num_pixels = int(math.sqrt(num_pixels))
 
+# Rotate the pictures, so we don't have to crane our necks:
+for i in range(num_images):
+  df.loc[i,:] = df.loc[i,:].reshape(num_pixels, num_pixels).T.reshape(-1)
 
 #
 # TODO: Load up your face_labels dataset. It only has a single column, and
@@ -113,20 +116,21 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # indexer to take care of that. Be sure to print out the labels and compare
 # what you see to the raw face_labels.csv so you know you loaded it correctly.
 #
-# .. your code here ..
+y = pd.read_csv('Datasets/face_labels.csv',header=None).iloc[:,0]
 
 
 #
 # TODO: Do train_test_split. Use the same code as on the EdX platform in the
 # reading material, but set the random_state=7 for reproduceability, and the
-# test_size to 0.15 (150%). Your labels are actually passed in as a series
+# test_size to 0.15 (15%). Your labels are actually passed in as a series
 # (instead of as an NDArray) so that you can access their underlying indices
 # later on. This is necessary so you can find your samples in the original
 # dataframe. The convenience methods we've written for you that handle drawing
 # expect this, so that they can plot your testing data as images rather than
 # as points:
 #
-# .. your code here ..
+from sklearn.model_selection import train_test_split
+data_train, data_test, label_train, label_test = train_test_split(df, y, test_size=0.15, random_state=7)
 
 
 
@@ -149,7 +153,11 @@ if Test_PCA:
   # transform both your training + test data, storing the results back into
   # data_train, and data_test.
   #
-  # .. your code here ..
+  from sklearn.decomposition import PCA
+  pca = PCA(n_components = 2, svd_solver='full')
+  pca.fit(data_train)
+  data_train = pca.transform(data_train)
+  data_test = pca.transform(data_test)
 
 else:
   # INFO: Isomap is used *before* KNeighbors to simplify your high dimensionality
@@ -171,17 +179,21 @@ else:
   # transform both your training + test data, storing the results back into
   # data_train, and data_test.
   #
-  # .. your code here ..
+  from sklearn import manifold
+  iso = manifold.Isomap(n_neighbors=5, n_components=2)
+  iso.fit(data_train)
+  data_train = iso.transform(data_train)
+  data_test = iso.transform(data_test)  
 
-
-
-
+for i in range(1,20):    
 #
 # TODO: Implement KNeighborsClassifier here. You can use any K value from 1
 # through 20, so play around with it and attempt to get good accuracy.
 # Fit the classifier against your training data and labels.
 #
-# .. your code here ..
+  from sklearn.neighbors import KNeighborsClassifier
+  knn = KNeighborsClassifier(n_neighbors=i)
+  knn.fit(data_train, label_train)
 
 
 
@@ -189,15 +201,17 @@ else:
 # TODO: Calculate + Print the accuracy of the testing set (data_test and
 # label_test).
 #
-# .. your code here ..
+  print "k=",i," -> ",knn.score(data_test, label_test)
 
 
 
 # Chart the combined decision boundary, the training data as 2D plots, and
 # the testing data as small images so we can visually validate performance.
-Plot2DBoundary(data_train, label_train, data_test, label_test)
+  Plot2DBoundary(knn, data_train, label_train, data_test, label_test)
 
 
+# Plot
+plt.show() 
 #
 # TODO:
 # After submitting your answers, expriment with using using PCA instead of
