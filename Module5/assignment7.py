@@ -57,9 +57,10 @@ def plotDecisionBoundary(model, X, y):
 # TODO: Load in the dataset, identify nans, and set proper headers.
 # Be sure to verify the rows line up by looking at the file in a text editor.
 #
-# .. your code here ..
-
-
+import pandas as pd
+df = pd.read_csv('Datasets/breast-cancer-wisconsin.data', names=['sample','thickness','size','shape','adhesion','epithelial','nuclei', 'chromatin', 'nucleoli', 'mitoses', 'status'])
+df.nuclei = pd.to_numeric(df.nuclei, errors='coerce')
+df = df.dropna(axis=0)
 
 # 
 # TODO: Copy out the status column into a slice, then drop it from the main
@@ -70,16 +71,15 @@ def plotDecisionBoundary(model, X, y):
 # If you goofed up on loading the dataset and notice you have a `sample` column,
 # this would be a good place to drop that too if you haven't already.
 #
-# .. your code here ..
-
+y = df.status
+X = df.drop(labels=['sample','status'], axis=1)
 
 
 #
 # TODO: With the labels safely extracted from the dataset, replace any nan values
 # with the mean feature / column value
 #
-# .. your code here ..
-
+df.fillna(df.mean())
 
 
 #
@@ -87,9 +87,8 @@ def plotDecisionBoundary(model, X, y):
 # the reading material, but set the random_state=7 for reproduceability, and keep
 # the test_size at 0.5 (50%).
 #
-# .. your code here ..
-
-
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=1)
 
 
 #
@@ -100,10 +99,14 @@ def plotDecisionBoundary(model, X, y):
 # which portion of the dataset is your model trained upon? Also which portion(s)
 # of your dataset actually get transformed?
 #
-# .. your code here ..
+from sklearn import preprocessing
+#scaler = preprocessing.StandardScaler().fit(X_train)
+#scaler = preprocessing.MinMaxScaler().fit(X_train)
+scaler = preprocessing.RobustScaler().fit(X_train)
+#scaler = preprocessing.Normalizer().fit(X_train)
 
-
-
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
 
 #
 # PCA and Isomap are your new best friends
@@ -114,8 +117,8 @@ if Test_PCA:
   # TODO: Implement PCA here. Save your model into the variable 'model'.
   # You should reduce down to two dimensions.
   #
-  # .. your code here ..
-
+  from sklearn.decomposition import PCA
+  model = PCA(n_components=2)
   
 
 else:
@@ -125,17 +128,17 @@ else:
   # Experiment with K values from 5-10.
   # You should reduce down to two dimensions.
   #
-  # .. your code here ..
-  
-
-
+  from sklearn import manifold
+  model = manifold.Isomap(n_neighbors=5, n_components=2)
 
 #
 # TODO: Train your model against data_train, then transform both
 # data_train and data_test using your model. You can save the results right
 # back into the variables themselves.
 #
-# .. your code here ..
+model.fit(X_train)
+X_train = model.transform(X_train)
+X_test = model.transform(X_test)
 
 
 
@@ -147,7 +150,9 @@ else:
 # general (high-K). You should also experiment with how changing the weights
 # parameter affects the results.
 #
-# .. your code here ..
+from sklearn.neighbors import KNeighborsClassifier
+knmodel = KNeighborsClassifier(n_neighbors=5, weights='distance')
+knmodel.fit(X_train, y_train)
 
 
 
@@ -166,7 +171,7 @@ else:
 #
 # TODO: Calculate + Print the accuracy of the testing set
 #
-# .. your code here ..
+print knmodel.score(X_test, y_test)
 
 
 plotDecisionBoundary(knmodel, X_test, y_test)

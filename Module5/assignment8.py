@@ -33,7 +33,7 @@ def drawLine(model, X_test, y_test, title):
 # compare it to the dataset loaded in a text file or in a
 # spread sheet application
 #
-# .. your code here ..
+X = pd.read_csv('Datasets/life_expectancy.csv', sep='\t')
 
 
 #
@@ -41,9 +41,8 @@ def drawLine(model, X_test, y_test, title):
 # variable called 'model'. Don't actually train or do anything else
 # with it yet:
 #
-# .. your code here ..
-
-
+from sklearn import linear_model
+model = linear_model.LinearRegression()
 
 #
 # TODO: Slice out your data manually (e.g. don't use train_test_split,
@@ -53,9 +52,11 @@ def drawLine(model, X_test, y_test, title):
 # INFO You might also want to read the note about slicing on the bottom
 # of this document before proceeding.
 #
-# .. your code here ..
-
-
+X_slice = X[X.Year < 1986]
+X_train = X_slice[['Year']]
+y_train = X_slice.WhiteMale
+print type(X_train), type(y_train)
+print len(X_train), len(y_train)
 
 #
 # TODO: Train your model then pass it into drawLine with your training
@@ -65,16 +66,14 @@ def drawLine(model, X_test, y_test, title):
 # given the pre-1986 data you trained it with. It'll also produce a
 # 2030 and 2045 extrapolation.
 #
-# .. your code here ..
-
+model.fit(X_train, y_train)
+drawLine(model, X_train, y_train, 'WhiteMale')
 
 #
 # TODO: Print the actual 2014 WhiteMale life expectancy from your
 # loaded dataset
 #
-# .. your code here ..
-
-
+print X.WhiteMale[(X.Year == 2014)].values[0]
 
 # 
 # TODO: Repeat the process, but instead of for WhiteMale, this time
@@ -82,9 +81,13 @@ def drawLine(model, X_test, y_test, title):
 # model, and then call drawLine. Lastly, print out the actual 2014
 # BlackFemale life expectancy
 #
-# .. your code here ..
+X_slice = X[X.Year < 1986]
+X_train = X_slice[['Year']]
+y_train = X_slice.BlackFemale
 
-
+model.fit(X_train, y_train)
+drawLine(model, X_train, y_train, 'BlackFemale')
+print X.BlackFemale[(X.Year == 2014)].values[0]
 
 #
 # TODO: Lastly, print out a correlation matrix for your entire
@@ -92,7 +95,11 @@ def drawLine(model, X_test, y_test, title):
 # matrix, just as we described in the visualization section of
 # the course
 #
-# .. your code here ..
+plt.imshow(X.corr(), cmap=plt.cm.Blues, interpolation='nearest')
+plt.colorbar()
+tick_marks = [i for i in range(len(X.columns))]
+plt.xticks(tick_marks, X.columns, rotation='vertical')
+plt.yticks(tick_marks, X.columns)
 
 plt.show()
 
