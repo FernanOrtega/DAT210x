@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 
 import scipy.io.wavfile as wavfile
+import os
+import fnmatch
 
 # Good Luck!
 
@@ -47,7 +49,7 @@ Provided_Portion = 0.25
 #
 # TODO: Create a regular ol' Python List called `zero`
 #
-# .. your code here ..
+zero = list()
 
 
 
@@ -58,10 +60,11 @@ Provided_Portion = 0.25
 # data, and not sample_rate at this point. Inside your for loop, simply
 # append the loaded audio data into your Python list `zero`:
 #
-# .. your code here ..
-
-
-
+for fname in os.listdir('Datasets/recordings/'):
+  if fnmatch.fnmatch(fname, '0_jackson*.wav'):
+    sample_rate, data = wavfile.read(os.path.join('Datasets/recordings/', fname))
+    zero.append(data)
+    
 # 
 # TODO: Just for a second, convert zero into a DataFrame. When you do
 # so, set the dtype to np.int16, since the input audio files are 16
@@ -76,8 +79,9 @@ Provided_Portion = 0.25
 # do a dropna on the Y axis here. Then, convert one back into an
 # NDArray using yourarrayname.values
 #
-# .. your code here ..
-
+zero = pd.DataFrame(zero, dtype=np.int16)
+zero = zero.dropna(axis=1)
+zero = zero.values
 
 #
 # TODO: It's important to know how (many audio_samples samples) long the
@@ -85,8 +89,7 @@ Provided_Portion = 0.25
 # so get the n_audio_samples count and store it in a variable called
 # n_audio_samples
 #
-# .. your code here ..
-
+n_audio_samples = zero.shape[1]
 
 
 #
@@ -94,7 +97,8 @@ Provided_Portion = 0.25
 # variable called 'model'. Don't actually train or do anything else
 # with it yet:
 #
-# .. your code here ..
+from sklearn import linear_model
+model = linear_model.LinearRegression()
 
 
 
@@ -119,8 +123,8 @@ train = np.delete(zero, [random_idx], axis=0)
 # train will be shaped [n_audio_features], since it is a single
 # sample (audio file, e.g. observation).
 #
-# .. your code here ..
-
+print train.shape
+print test.shape
 
 
 #
@@ -150,7 +154,8 @@ wavfile.write('Original Test Clip.wav', sample_rate, test)
 # n_audio_samples audio features from test and store it in X_test. This
 # should be accomplished using indexing.
 #
-# .. your code here ..
+int_slice = int(round(Provided_Portion * n_audio_samples))
+X_test = test[:int_slice]
 
 
 #
@@ -160,9 +165,7 @@ wavfile.write('Original Test Clip.wav', sample_rate, test)
 # in there, we will be able to R^2 "score" how well our algorithm did
 # in completing the sound file.
 #
-# .. your code here ..
-
-
+y_test = test[int_slice:]
 
 
 # 
@@ -175,9 +178,8 @@ wavfile.write('Original Test Clip.wav', sample_rate, test)
 # X_train, and the remaining go into y_test. All of this should be
 # accomplishable using regular indexing in two lines of code.
 #
-# .. your code here ..
-
-
+X_train = train[:,:int_slice]
+y_train = train[:,int_slice:]
 
 # 
 # TODO: SciKit-Learn gets mad if you don't supply your training
@@ -191,20 +193,21 @@ wavfile.write('Original Test Clip.wav', sample_rate, test)
 # doesn't apply, you can call .reshape(-1, 1) on your data to turn
 # [n_samples] into [n_samples, 1]:
 #
-# .. your code here ..
+X_test = X_test.reshape(1, -1)
+y_test = y_test.reshape(1, -1)
 
 
 #
 # TODO: Fit your model using your training data and label:
 #
-# .. your code here ..
+model.fit(X_train,y_train)
 
 
 # 
 # TODO: Use your model to predict the 'label' of X_test. Store the
 # resulting prediction in a variable called y_test_prediction
 #
-# .. your code here ..
+y_test_prediction = model.predict(X_test)
 
 
 # INFO: SciKit-Learn will use float64 to generate your predictions
@@ -217,7 +220,7 @@ y_test_prediction = y_test_prediction.astype(dtype=np.int16)
 # TODO: Score how well your prediction would do for some good laughs,
 # by passing in your test data and test label (y_test).
 #
-# .. your code here ..
+score = model.score(X_test, y_test)
 print "Extrapolation R^2 Score: ", score
 
 
