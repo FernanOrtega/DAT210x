@@ -11,6 +11,7 @@ import time
 # You can adjust them after completing the lab
 C = 1
 kernel = 'linear'
+gamma = 'auto'
 iterations = 5000   # TODO: Change to 200000 once you get to Question#2
 
 #
@@ -98,7 +99,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
     #
     # TODO: train the classifier on the training data / labels:
     #
-    # .. your code here ..
+    model.fit(X_train, y_train)
   print "{0} Iterations Training Time: ".format(iterations), time.time() - s
 
 
@@ -108,6 +109,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
     # TODO: score the classifier on the testing data / labels:
     #
     # .. your code here ..
+    score = model.score(X_test, y_test)
   print "{0} Iterations Scoring Time: ".format(iterations), time.time() - s
   print "High-Dimensionality Score: ", round((score*100), 3)
 
@@ -118,18 +120,18 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # Verify you did it properly.
 # Indices shouldn't be doubled, nor weird headers...
 #
-# .. your code here ..
+X = pd.read_csv('Datasets/wheat.data', index_col=0)
 
 
 # INFO: An easy way to show which rows have nans in them
-#print X[pd.isnull(X).any(axis=1)]
+# print X[pd.isnull(X).any(axis=1)]
 
 
 # 
 # TODO: Go ahead and drop any row with a nan
 #
-# .. your code here ..
-
+X = X.dropna(axis=0)
+# print X[pd.isnull(X).any(axis=1)]
 
 
 # 
@@ -145,8 +147,9 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # them from X. Encode the labels, using the .map() trick we showed
 # you in Module 5 -- canadian:0, kama:1, and rosa:2
 #
-# .. your code here ..
-
+print X['wheat_type'].unique()
+y = X['wheat_type'].map({'kama':0, 'canadian':1, 'rosa':2})
+X = X.drop(labels=['wheat_type'], axis=1)
 
 
 # 
@@ -154,7 +157,8 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # Your test size can be 30% with random_state 7.
 # Use variable names: X_train, X_test, y_train, y_test
 #
-# .. your code here ..
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=7) 
 
 
 
@@ -162,14 +166,16 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # TODO: Create an SVC classifier named svc
 # Use a linear kernel, and set the C value to C
 #
-# .. your code here ..
+from sklearn.svm import SVC
+svc = SVC(kernel=kernel, C=C, gamma=gamma)
 
 
 #
 # TODO: Create an KNeighbors classifier named knn
 # Set the neighbor count to 5
 #
-# .. your code here ..
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier(n_neighbors=5)
 
 
 
