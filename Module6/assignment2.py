@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 
 # The Dataset comes from:
@@ -24,9 +25,15 @@ def load(path_test, path_train):
   y_train = training.ix[:,n_features-1:].values.ravel()
 
   #
-  # Special:
+  # Special:    
+  perc2keep = 1
+  index = X_train.shape[0]
+  X_train_sliced = X_train[:int(math.ceil(index * perc2keep))]
+  y_train_sliced = y_train[:int(math.ceil(index * perc2keep))]
+  print X_train_sliced.shape
+  print y_train_sliced.shape
 
-  return X_train, X_test, y_train, y_test
+  return X_train_sliced, X_test, y_train_sliced, y_test
 
 
 def peekData(X_train):
@@ -42,7 +49,7 @@ def peekData(X_train):
       plt.axis('off')
       cnt += 1
   fig.set_tight_layout(True)
-  plt.show()
+  #plt.show()
 
 
 def drawPredictions(X_train, X_test, y_train, y_test):
@@ -75,13 +82,13 @@ def drawPredictions(X_train, X_test, y_train, y_test):
       plt.axis('off')
       index += 1
   fig.set_tight_layout(True)
-  plt.show()
+  #plt.show()
 
 
 
 #
 # TODO: Pass in the file paths to the .tes and the .tra files
-X_train, X_test, y_train, y_test = load('', '')
+X_train, X_test, y_train, y_test = load('Datasets/optdigits.tes', 'Datasets/optdigits.tra')
 
 import matplotlib.pyplot as plt
 from sklearn import svm
@@ -90,7 +97,7 @@ from sklearn import svm
 # Get to know your data. It seems its already well organized in
 # [n_samples, n_features] form. Our dataset looks like (4389, 784).
 # Also your labels are already shaped as [n_samples].
-peekData(X_train)
+#peekData(X_train)
 
 
 #
@@ -99,15 +106,15 @@ peekData(X_train)
 # data / labels:
 print "Training SVC Classifier..."
 #
-# .. your code here ..
-
+model = svm.SVC(kernel='rbf', C=1, gamma=0.001)
+model.fit(X_train, y_train)
 
 
 
 # TODO: Calculate the score of your SVC against the testing data
 print "Scoring SVC Classifier..."
 #
-# .. your code here ..
+score = model.score(X_test, y_test)
 print "Score:\n", score
 
 
@@ -119,8 +126,8 @@ drawPredictions(X_train, X_test, y_train, y_test)
 # TODO: Print out the TRUE value of the 1000th digit in the test set
 # By TRUE value, we mean, the actual provided label for that sample
 #
-# .. your code here ..
-print "1000th test label: ", true_1000th_test_value)
+true_1000th_test_value = y_test[999]
+print "1000th test label: ", true_1000th_test_value
 
 
 #
@@ -129,7 +136,7 @@ print "1000th test label: ", true_1000th_test_value)
 # INFO: If you get a warning on your predict line, look at the
 # notes from the previous module's labs.
 #
-# .. your code here ..
+guess_1000th_test_value = model.predict(X_test.ix[999,:])
 print "1000th test prediction: ", guess_1000th_test_value
 
 
@@ -137,7 +144,8 @@ print "1000th test prediction: ", guess_1000th_test_value
 # TODO: Use IMSHOW to display the 1000th test image, so you can
 # visually check if it was a hard image, or an easy image
 #
-# .. your code here ..
+#fig = plt.figure()
+#plt.imshow(X_test.ix[999,:].reshape(8,8), cmap=plt.cm.gray_r, interpolation='nearest')
 
 
 #
@@ -203,3 +211,6 @@ print "1000th test prediction: ", guess_1000th_test_value
 # assignment one last time. What's the accuracy score this time?
 # Surprised?
 
+
+
+plt.show()
